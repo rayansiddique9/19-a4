@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <unordered_map>
 using namespace std;
 
 vector<string> tac()
@@ -200,6 +201,93 @@ vector<vector<string>> convertToQuad(vector<vector<string>> arr)
     return quad;
 }
 
+bool isNumber(string var)
+{
+    for (char c : var)
+    {
+        if (!isdigit(c))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+// vector<string> tokenizeSTLine(string s)
+// {
+//     vector<string> tokens;
+//     stringstream line(s);
+//     string word;
+
+//     string delimiter = "-----";
+
+//     size_t pos = 0;
+//     string token;
+//     while ((pos = s.find(delimiter)) != string::npos)
+//     {
+//         token = s.substr(0, pos);
+//         tokens.push_back(token);
+//         s.erase(0, pos + delimiter.length());
+//     }
+//     tokens.push_back(s);
+// }
+
+vector<vector<string>> getMarkaziLineNo()
+{
+    // cout << " in function";
+    ifstream fin;
+    fin.open("st.txt");
+    string str;
+    vector<string> x;
+    vector<vector<string>> res;
+
+    for (int i = 1; !fin.eof(); i++)
+    {
+        if (i <= 5)
+        {
+            // fin.ignore('\n');
+            getline(fin, str);
+            str = "";
+            // cout << "i = " << i << endl;
+        }
+        else
+        {
+            str = "";
+            // cout << "agya i = " << i << endl;
+            getline(fin, str);
+            // cout << str << endl;
+            x = tokenize(str);
+            // printVector(x);
+            if (x[1] == "markazi")
+            {
+                str = "";
+                while (!fin.eof())
+                {
+                    getline(fin, str);
+                    x = tokenize(str);
+                    res.push_back(x);
+                    str = "";
+                    x.empty();
+                }
+                return res;
+            }
+            x.empty();
+        }
+    }
+    fin.close();
+
+    return res;
+}
+
+// int lookSymbolTable(string s, bool &check)
+// {
+//     ifstream fin;
+//     fin.open("symbol_table.txt");
+//     while (!fin.eof())
+//     {
+//     }
+// }
+
 int main()
 {
     vector<string> a = tac();
@@ -218,20 +306,71 @@ int main()
     for (auto &it : a)
     {
         s = tokenize(it);
-        // printVector(s);
-        // cout << "----------" << endl;
         v.push_back(s);
         s.clear();
     }
 
+    cout << "printing quad" << endl
+         << endl;
     vector<vector<string>> vc = convertToQuad(v);
 
-    // for (auto &it : a)
-    // {
-    //     for (auto &it1 : it)
-    //     {
-    //         cout << it1;
-    //     }
-    //     cout << endl;
-    // }
+    // var ->symbol -> ds.push and map[key, value] = varname, ds[indexof(varname)]
+    // number -> ds.push
+
+    vector<int> ds;
+    bool varExists = true;
+    unordered_map<string, int> m;
+
+    cout << endl
+         << endl;
+    cout << "------------------------" << endl;
+    vector<vector<string>> r = getMarkaziLineNo();
+
+    for (auto &it1 : r)
+    {
+        // printVector(it1);
+        ds.push_back(stoi(it1[3]));
+        m[it1[1]] = ds.size() - 1;
+    }
+
+    for (auto it = m.begin(); it != m.end(); it++)
+    {
+        cout << it->first << " " << m[it->first] << " " << ds[m[it->first]] << endl;
+    }
+
+    for (auto &it : vc)
+    {
+        for (auto &it1 : it)
+        {
+
+            if (isNumber(it1))
+            {
+                ds.push_back(stoi(it1));
+                it1 = to_string(ds.size() - 1);
+            }
+            else if (it1 != "mov" && it1 != "ret" && it1 != "goto" && it1 != "EQ" && it1 != "out" && it1 != "in" && it1 != "GT" && it1 != "LT" && it1 != "GE" && it1 != "LE" && it1 != "%" && it1 != "/" && it1 != "*" && it1 != "+" && it1 != "-") // mov x  0
+            {
+                if (m.find(it1) == m.end()) // if variable doesnt exist in hash map
+                {
+                    cout << "Semantic Error at { ";
+                    printVector(it);
+                    cout << " }" << endl;
+                    exit(0);
+                }
+                else // if var exists in map replace var in quad with its value in map
+                {
+                    it1 = to_string(m[it1]);
+                }
+            }
+        }
+    }
+
+    cout << endl
+         << endl;
+    cout << "quad after replacement" << endl;
+
+    for (auto &it1 : vc)
+    {
+        printVector(it1);
+    }
 }

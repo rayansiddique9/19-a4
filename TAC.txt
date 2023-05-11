@@ -1,23 +1,15 @@
-in num
 x = 0
 y = 0
-if num LT 0 goto 6
-goto 8
+n = 0
+if n EQ 3 goto 6
+goto 9
 ret 0
-goto 25
-if num EQ 0 goto 10
-goto 12
-ret 0
-goto 25
-i = 1
-t1 = i - 1
-if t1 GE n goto 16
-goto 25
-t2 = x + y
-z = t2
-x = y
-y = z
-t3 = i + 1
-i = t3
+goto 19
+if n LT 3 goto 11
 goto 14
 ret 0
+goto 19
+if n GT 3 goto 16
+goto 19
+ret 0
+goto 19

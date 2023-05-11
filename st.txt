@@ -1,0 +1,10 @@
+
+---------------------------------------------------------------------
+DATATYPE       VARIABLE       ADDRESS        INITIAL VALUE      TYPE
+---------------------------------------------------------------------
+
+khali markazi 1 0 func
+adad x 0 0 var
+adad y 4 0 var
+adad z 8 0 var
+adad n 12 0 var
