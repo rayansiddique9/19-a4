@@ -1,16 +1,15 @@
-kaam calculateFib@adad (n@adad | c@adad) karo
+kaam markazi@khali () karo
+	rakho num@adad;
+	lo >> num; input
 	rakho x@adad := 0;
 	rakho y@adad := 0;
 	rakho z@adad;
 
-	agar (n < 0) to phir karo
-		dekhao << `munfi number daal diya\n`;
+	agar (num < 0) to phir karo
 		wapas bhaijo 0;
-	warna agar (n = 0) to phir
-		dekhao << `yar 0 hai!\n`;
+	warna agar (num = 0) to phir
 		wapas bhaijo 0;
 	warna phir
-		dekhao << `\nfibonacci series: `;
 		rakho i@adad := 1;
 		jab tak (i-1 >= n) karo
 			dekhao << x << ` `;
@@ -20,13 +19,6 @@ kaam calculateFib@adad (n@adad | c@adad) karo
 			rakho i := i + 1;
 		bas karo
 	bas karo
-
-	wapas bhaijo 0;
-kaam khatam
-;fibonacci series ka hisaab karnay and dekhanay wala program
-kaam markazi@khali () karo
-	rakho num@adad;
-	lo << `Enter the number` >> num; input
-	rakho result@adad := chalao calculateFib(num | 0);
+	
 	wapas bhaijo 0;
 kaam khatam
