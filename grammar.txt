@@ -1,0 +1,94 @@
+GRAMMAR:
+
+Regular Expressions used in GRAMMAR: All token types
+
+Start -> S Markazi S
+S -> CommentBody kaam Function kaam khatam S | CommentBody
+Function -> ID@Datatype (Params) karo Statements
+Markazi -> kaam markazi@Datatype(Params) karo Statements kaam khatam CommentBody
+Params -> ID@adad P | ^
+P -> | ID@adad P | ^
+Statements -> Statement Statements | ^
+Statement ->  Declaration;Comment | Loop CommentBody | Input;Comment  | Output;Comment  | If CommentBody | Return;Comment | CommentBody 
+CommentBody -> ;Comment X | ^
+X -> ;Comment X | ^
+Comment -> CMNT | ^ 
+Declaration -> rakho ID DecType
+DecType -> @adad AssignToExp | := CorE
+AssignToExp -> := CorE | ^
+CorE -> Call | Expression
+Call -> chalao ID(Pass) {var = new Temp(); fout << "call " << ID.lex << Pass.c << " " << var << endl; Call.v = var;}
+Pass -> Expression {fout << "param " << Expression.v << endl;}
+        L {Pass.c = L.c} 
+Pass -> ^ {Pass.c = 0}
+L -> | Expression {fout << "param " << Expression.v << endl;} 
+     L {L.c = L1.c + 1;}
+L -> ^ {L.c = 1;}
+
+If -> agar (Expression {fout << Expression.v;}
+            RO  {fout << " " + RO.lex + " ";}
+            Expression {fout << Expression.v + "goto " + (n+2); ++}
+            ) to phir 
+      karo 
+      Statements {S.nxt = n; fout << "goto " << endl; ++n;}
+      Else 
+      bas karo
+Else -> warna agar (BE) to 
+        phir 
+        Statements {S.nxt = n; fout << "goto " << endl; ++n;}
+        Els
+Else -> ^
+Els -> warna agar Ele
+Els -> warna phir El
+Ele -> (BE) to 
+        phir 
+        Statements {S.nxt = n; fout << "goto " << endl; ++n;}
+        Els
+El -> Statements {S.nxt = n; fout << "goto " << endl; ++n;}
+El -> ^ 
+Return -> wapas bhajo Expression {fout << "ret " << Expression.v}
+
+Input -> lo In
+In -> >> ID {fout << "in " << ID.lex << endl;} 
+      B
+In -> << STR {fout << "out " << STR.lex << endl;} 
+      >> ID {fout << "in " << ID.lex << endl;}
+      B
+B -> >> ID {fout << "in " << ID.lex << endl;}
+        B
+B -> ^
+Output -> dekhao << Out A
+A -> << Out A | ^
+Out -> STR {fout << "out " << STR.lex << endl;}
+Out -> ID {fout << "out " << ID.lex << endl;}
+
+Loop -> jab tak (BE) karo 
+Statements {fout << "goto " << BE.t; ++n;}
+bas karo
+
+Expression -> T {R.i = T.v} 
+              R {Expression.v = R.s}
+R ->  +
+      T {var = new Temp(); fout << var << " = " << R.i << " + " << T.v << endl; Q1.i = var;}
+      R {R.s = R1.s}
+R ->  -
+      T {var = new Temp(); fout << var << " = " << R.i << " - " << T.v << endl; Q1.i = var;}
+      R {R.s = R1.s}
+R ->  ^ {R.s = R.i}
+T -> F {Q.i = F.v}
+     Q {T.v = Q.s}
+Q -> *
+     F {var = new Temp(); fout << var << " = " << Q.i << " * " << F.v << endl; Q1.i = var;}
+     Q {Q.s = Q1.s}
+Q -> /
+     F {var = new Temp(); fout << var << " = " << Q.i << " / " << F.v << endl; Q1.i = var;}
+     Q {Q.s = Q1.s}
+Q -> %
+     F {var = new Temp(); fout << var << " = " << Q.i << " % " << F.v << endl; Q1.i = var;}
+     Q {Q.s = Q1.s}
+Q -> ^ {Q.s = Q.i}
+
+F -> ID {F.v = ID.lex}
+F -> NUM {F.v = NUM.lex}
+F -> (Expression) {F.v = Expression.v} 
+Datatype -> adad | khali 

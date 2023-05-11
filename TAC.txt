@@ -1,0 +1,34 @@
+x = 0
+y = 0
+if n LT 0 goto 5
+goto 8
+out "munfi number daal diya\n"
+ret 0
+goto 27
+if n EQ 0 goto 10
+goto 13
+out "yar 0 hai!\n"
+ret 0
+goto 27
+out "\nfibonacci series: "
+i = 1
+t1 = i - 1
+if t1 GE n goto 18
+goto 27
+out x
+out " "
+t2 = x + y
+z = t2
+x = y
+y = z
+t3 = i + 1
+i = t3
+goto 16
+ret 0
+out "Enter the number"
+in num
+param num
+param 0
+calculateFib 2, t4
+result = t4
+ret 0

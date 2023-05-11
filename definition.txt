@@ -1,0 +1,9 @@
+character -> [all characters including special characters]
+letter -> [_A-Za-z]
+digit -> [0-9]
+identifier -> letter( letter | digit )*
+integer -> ( digit )+
+string -> `( character )*`
+comment -> ;( character )+
+relop -> < | <= | > | >= | = | <>
+ioop -> << | >>

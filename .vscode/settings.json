@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "*.css": "postcss",
+        "xstring": "cpp",
+        "string": "cpp",
+        "iostream": "cpp"
+    }
+}
