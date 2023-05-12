@@ -52,10 +52,19 @@ vector<string> tokenize(string s)
     vector<string> tokens;
     stringstream line(s);
     string word;
-
-    while (getline(line, word, ' '))
+    if (s.substr(0, 3) == "out")
     {
-        tokens.push_back(word);
+
+        tokens.push_back(s.substr(0, 3));
+        tokens.push_back(s.substr(4,s.length() - 4));
+    }
+
+    else
+    {
+        while (getline(line, word, ' '))
+        {
+             tokens.push_back(word);
+        }
     }
 
     return tokens;
@@ -159,8 +168,8 @@ vector<vector<string>> convertToQuad(vector<vector<string>> arr)
         // cout << "pehla " << it[0] << endl;
         if (it[0] == "out")
         {
-            v1 = output(it);
-            quad.push_back(v1);
+            // v1 = output(it);
+            quad.push_back(it);
             printVector(v1);
         }
         else if (it[0] == "in")
@@ -236,7 +245,7 @@ vector<vector<string>> getMarkaziLineNo()
 {
     // cout << " in function";
     ifstream fin;
-    fin.open("st.txt");
+    fin.open("symbol_table.txt");
     string str;
     vector<string> x;
     vector<vector<string>> res;
@@ -328,15 +337,15 @@ int main()
 
     for (auto &it1 : r)
     {
-        // printVector(it1);
+        printVector(it1);
         ds.push_back(stoi(it1[3]));
         m[it1[1]] = ds.size() - 1;
     }
 
-    for (auto it = m.begin(); it != m.end(); it++)
-    {
-        cout << it->first << " " << m[it->first] << " " << ds[m[it->first]] << endl;
-    }
+    // for (auto it = m.begin(); it != m.end(); it++)
+    // {
+    //     cout << it->first << " " << m[it->first] << " " << ds[m[it->first]] << endl;
+    // }
 
     for (auto &it : vc)
     {
@@ -348,8 +357,13 @@ int main()
                 ds.push_back(stoi(it1));
                 it1 = to_string(ds.size() - 1);
             }
-            else if (it1 != "mov" && it1 != "ret" && it1 != "goto" && it1 != "EQ" && it1 != "out" && it1 != "in" && it1 != "GT" && it1 != "LT" && it1 != "GE" && it1 != "LE" && it1 != "%" && it1 != "/" && it1 != "*" && it1 != "+" && it1 != "-") // mov x  0
+            else if (it1 != "mov" && it1 != "ret" && it1 != "goto" && it1 != "EQ" && it1 != "==" && it1 != "out" && it1 != "in" && it1 != "GT" && it1 != "LT" && it1 != "GE" && it1 != "LE" && it1 != "%" && it1 != "/" && it1 != "*" && it1 != "+" && it1 != "-") // mov x  0
             {
+                if(it1[0] == '"')
+                {
+                    continue;
+                }                                   
+
                 if (m.find(it1) == m.end()) // if variable doesnt exist in hash map
                 {
                     cout << "Semantic Error at { ";
@@ -373,4 +387,127 @@ int main()
     {
         printVector(it1);
     }
+
+    for (int i = 0; i < vc.size(); i++) 
+    {
+        if (vc[i][0] == "+")
+        {
+            int i = stoi(vc[i][1]);
+            int j = stoi(vc[i][2]);
+            int k = stoi(vc[i][3]);
+            ds[k] = ds[i] + ds[j];
+        }
+
+        else if (vc[i][0] == "-")
+        {
+            int i = stoi(vc[i][1]);
+            int j = stoi(vc[i][2]);
+            int k = stoi(vc[i][3]);
+            ds[k] = ds[i] - ds[j];
+        }
+
+        else if (vc[i][0] == "/")
+        {
+
+        }
+
+        else if (vc[i][0] == "*")
+        {
+            
+        }
+
+        else if (vc[i][0] == "%")
+        {
+
+        }
+        
+
+    // e.g. ‘+’ 10 14 18
+
+
+
+    else if (vc[i][0] == "goto")
+    {
+
+    }
+        // pc = quad[pc][1] - 1;
+        // break;
+
+    // goto 100
+
+
+
+    else if (vc[i][0] == "GE")
+    {
+
+    }
+
+    else if (vc[i][0] == "GT")
+    {
+
+    }
+
+    else if(vc[i][0] == "EQ")
+    {
+
+    }
+
+    else if (vc[i][0] == "LT")
+    {
+
+    }
+
+    else if (vc[i][0] == "LE")
+    {
+
+    }
+
+    else if (vc[i][0] == "NE")
+    {
+
+    }
+        // int i = quad[pc][1];
+        // int j = quad[pc][2];
+        // int k = quad[pc][3];
+        // if (ds[i] >= ds[j])
+        //     pc = k - 1;
+        // break;
+
+    // e.g. if x >= y goto 100
+    // GE &x &y 100
+
+
+
+    else if (vc[i][0] == "in")
+    {
+
+    }
+        // int i = quad[pc][1];
+        // cin >> ds[i];
+        // break;
+
+    else if (vc[i][0] == "out")
+    {
+        if (vc[i][1][0] == '"')
+        {
+            cout << vc[i][1].substr(1, vc[i][1].length() - 2); 
+        }
+
+        else
+        {
+            int i = stoi(vc[i][1]);
+            cout << ds[i];
+        }
+    }
+
+    else if (vc[i][0] == "mov")
+    {
+        ds[stoi(vc[i][1])] = ds[stoi(vc[i][2])];
+    }
+
+    else if (vc[i][0] == "ret")
+    {
+        exit(1);
+    }
+}
 }

@@ -3,6 +3,15 @@
 string parser::newTemp()
 {
     string res = "t" + to_string(varNum);
+    symbol s;
+    s.d = Datatype::adad;
+    s.var = res;
+    s.t = type::var;
+    s.address = address;
+    s.init = 0;
+    address += 4;
+    tbl.push_back(s);
+    tblIndex++;
     return res;
 }
 
@@ -78,7 +87,7 @@ bool parser::R(string &s, string i)
 
         string var = newTemp();
         // fout << var << " = " << i << " + " << s << endl;
-        string fileOut = var + " = " + i + " + " +  s + "\n";
+        string fileOut = var + " = " + i + " + " + s + "\n";
         icLines.push_back(fileOut);
         i = var;
         varNum++;
@@ -105,8 +114,8 @@ bool parser::R(string &s, string i)
 
         string var = newTemp();
         varNum++;
-        //fout << var << " = " << i << " - " << s << endl;
-        string fileOut = var + " = " + i + " - " +  s + "\n";
+        // fout << var << " = " << i << " - " << s << endl;
+        string fileOut = var + " = " + i + " - " + s + "\n";
         icLines.push_back(fileOut);
         i = var;
         if (!R(s, i))
@@ -144,8 +153,8 @@ bool parser::Q(string &s, string i)
 
         string var = newTemp();
         varNum++;
-        //fout << var << " = " << i << " * " << s << endl;
-        string fileOut = var + " = " + i + " * " +  s + "\n";
+        // fout << var << " = " << i << " * " << s << endl;
+        string fileOut = var + " = " + i + " * " + s + "\n";
         icLines.push_back(fileOut);
         i = var;
         if (!Q(s, i))
@@ -170,8 +179,8 @@ bool parser::Q(string &s, string i)
 
         string var = newTemp();
         varNum++;
-        //fout << var << " = " << i << " / " << s << endl;
-        string fileOut = var + " = " + i + " / " +  s + "\n";
+        // fout << var << " = " << i << " / " << s << endl;
+        string fileOut = var + " = " + i + " / " + s + "\n";
         icLines.push_back(fileOut);
         i = var;
         if (!Q(s, i))
@@ -196,8 +205,8 @@ bool parser::Q(string &s, string i)
 
         string var = newTemp();
         varNum++;
-        //fout << var << " = " << i << " % " << s << endl;
-        string fileOut = var + " = " + i + " % " +  s + "\n";
+        // fout << var << " = " << i << " % " << s << endl;
+        string fileOut = var + " = " + i + " % " + s + "\n";
         icLines.push_back(fileOut);
         i = var;
         if (!Q(s, i))
@@ -242,6 +251,32 @@ bool parser::F(string &s)
         checkEL();
         tabs--;
         return true;
+    }
+    else if (_lexer.peek(1).tokenType == TokenType::OPEN_PARENTHESIS)
+    {
+        tabs++;
+        printTabs(_lexer.peek(1).lexeme);
+        tabs--;
+        expect(TokenType::OPEN_PARENTHESIS);
+        checkEL();
+        if (!Expression(s))
+        {
+            syntax_error();
+            return false;
+        }
+        if (_lexer.peek(1).tokenType == TokenType::CLOSE_PARENTHESIS)
+        {
+            tabs++;
+            printTabs(_lexer.peek(1).lexeme);
+            tabs--;
+            expect(TokenType::CLOSE_PARENTHESIS);
+            checkEL();
+            tabs--;
+            return true;
+        }
+
+        syntax_error();
+        return false;
     }
 
     syntax_error();
@@ -314,6 +349,8 @@ bool parser::Datatype2()
     checkEL();
     if (_lexer.peek(1).tokenType == TokenType::adad)
     {
+        tbl[tblIndex].d = Datatype::adad;
+        tblIndex++;
         tabs++;
         printTabs("adad");
         tabs--;
@@ -325,6 +362,8 @@ bool parser::Datatype2()
 
     else if (_lexer.peek(1).tokenType == TokenType::khali)
     {
+        tbl[tblIndex].d = Datatype::khali;
+        tblIndex++;
         tabs++;
         printTabs("khali");
         tabs--;
@@ -381,14 +420,45 @@ bool parser::B()
             printTabs(_lexer.peek(1).lexeme);
             tabs--;
             icLines.push_back("in " + _lexer.peek(1).lexeme + '\n');
+            string id = _lexer.peek(1).lexeme;
             expect(TokenType::ID);
             checkEL();
+
+            if (_lexer.peek(1).tokenType == TokenType::AT)
+            {
+                tabs++;
+                printTabs("@");
+                tabs--;
+                expect(TokenType::AT);
+                if (_lexer.peek(1).tokenType == TokenType::adad)
+                {
+                    tabs++;
+                    printTabs("adad");
+                    tabs--;
+                    symbol s;
+                    s.address = address;
+                    address += 4;
+                    s.d = Datatype::adad;
+                    s.init = 0;
+                    s.t = type::var;
+                    s.var = id;
+                    tbl.push_back(s);
+                    tblIndex++;
+                    expect(TokenType::adad);
+                } 
+
+                else
+                {
+                    syntax_error();
+                    return false;
+                }
+                
+            }
             if (!B())
             {
                 syntax_error();
                 return false;
             }
-
             tabs--;
             return true;
         }
@@ -419,8 +489,40 @@ bool parser::In()
             printTabs(_lexer.peek(1).lexeme);
             tabs--;
             icLines.push_back("in " + _lexer.peek(1).lexeme + '\n');
+            string id = _lexer.peek(1).lexeme;
             expect(TokenType::ID);
             checkEL();
+
+            if (_lexer.peek(1).tokenType == TokenType::AT)
+            {
+                tabs++;
+                printTabs("@");
+                tabs--;
+                expect(TokenType::AT);
+                if (_lexer.peek(1).tokenType == TokenType::adad)
+                {
+                    tabs++;
+                    printTabs("adad");
+                    tabs--;
+                    symbol s;
+                    s.address = address;
+                    address += 4;
+                    s.d = Datatype::adad;
+                    s.init = 0;
+                    s.t = type::var;
+                    s.var = id;
+                    tbl.push_back(s);
+                    tblIndex++;
+                    expect(TokenType::adad);
+                } 
+
+                else
+                {
+                    syntax_error();
+                    return false;
+                }
+                
+            }
             if (!B())
             {
                 syntax_error();
@@ -461,7 +563,45 @@ bool parser::In()
                     printTabs(_lexer.peek(1).lexeme);
                     tabs--;
                     icLines.push_back("in " + _lexer.peek(1).lexeme + '\n');
+                    string id = _lexer.peek(1).lexeme;
                     expect(TokenType::ID);
+                    checkEL();
+
+                    if (_lexer.peek(1).tokenType == TokenType::AT)
+                    {
+                        tabs++;
+                        printTabs("@");
+                        tabs--;
+                        expect(TokenType::AT);
+                        if (_lexer.peek(1).tokenType == TokenType::adad)
+                        {
+                            tabs++;
+                            printTabs("adad");
+                            tabs--;
+                            symbol s;
+                            s.address = address;
+                            address += 4;
+                            s.d = Datatype::adad;
+                            s.init = 0;
+                            s.t = type::var;
+                            s.var = id;
+                            tbl.push_back(s);
+                            tblIndex++;
+                            expect(TokenType::adad);
+                        } 
+
+                        else
+                        {
+                            syntax_error();
+                            return false;
+                        }
+                        
+                    }
+                    if (!B())
+                    {
+                        syntax_error();
+                        return false;
+                    }
                     tabs--;
                     return true;
                 }
@@ -517,31 +657,32 @@ bool parser::Out()
     tabs++;
     printTabs("Out");
     checkEL();
-    if (_lexer.peek(1).tokenType == TokenType::NUM)
-    {
-        tabs++;
-        printTabs(_lexer.peek(1).lexeme);
-        tabs--;
-        icLines.push_back("out " + _lexer.peek(1).lexeme + '\n');
-        expect(TokenType::NUM);
-        checkEL();
-        tabs--;
-        return true;
-    }
+    string s;
+    // if (_lexer.peek(1).tokenType == TokenType::NUM)
+    // {
+    //     tabs++;
+    //     printTabs(_lexer.peek(1).lexeme);
+    //     tabs--;
+    //     icLines.push_back("out " + _lexer.peek(1).lexeme + '\n');
+    //     expect(TokenType::NUM);
+    //     checkEL();
+    //     tabs--;
+    //     return true;
+    // }
 
-    else if (_lexer.peek(1).tokenType == TokenType::ID)
-    {
-        tabs++;
-        printTabs(_lexer.peek(1).lexeme);
-        tabs--;
-        icLines.push_back("out " + _lexer.peek(1).lexeme + '\n');
-        expect(TokenType::ID);
-        checkEL();
-        tabs--;
-        return true;
-    }
+    // else if (_lexer.peek(1).tokenType == TokenType::ID)
+    // {
+    //     tabs++;
+    //     printTabs(_lexer.peek(1).lexeme);
+    //     tabs--;
+    //     icLines.push_back("out " + _lexer.peek(1).lexeme + '\n');
+    //     expect(TokenType::ID);
+    //     checkEL();
+    //     tabs--;
+    //     return true;
+    // }
 
-    else if (_lexer.peek(1).tokenType == TokenType::STR)
+    if (_lexer.peek(1).tokenType == TokenType::STR)
     {
         tabs++;
         printTabs(_lexer.peek(1).lexeme);
@@ -551,6 +692,14 @@ bool parser::Out()
         checkEL();
         tabs--;
         return true;
+    }
+    
+    else if (Expression(s))
+    {
+        icLines.push_back("out " + s + "\n");
+        checkEL();
+        tabs--;
+        return true;   
     }
 
     syntax_error();
@@ -601,6 +750,7 @@ bool parser::Output()
 
 bool parser::Return()
 {
+    string s;
     tabs++;
     printTabs("Return");
     checkEL();
@@ -618,19 +768,14 @@ bool parser::Return()
             tabs--;
             expect(TokenType::bhaijo);
             checkEL();
-            if (_lexer.peek(1).tokenType == TokenType::NUM)
+            if (!Expression(s))
             {
-                tabs++;
-                printTabs(_lexer.peek(1).lexeme);
-                tabs--;
-                icLines.push_back("ret " + _lexer.peek(1).lexeme + '\n');
-                expect(TokenType::NUM);
-                checkEL();
-                tabs--;
-                return true;
+                syntax_error();
+                return false;
             }
-            syntax_error();
-            return false;
+            icLines.push_back("ret " + s + '\n');
+            tabs--;
+            return true;
         }
         syntax_error();
         return false;
@@ -645,6 +790,7 @@ bool parser::Loop()
     tabs++;
     printTabs("Loop");
     int f = 0;
+    int t = 0;
     checkEL();
     if (_lexer.peek(1).tokenType == TokenType::jab)
     {
@@ -667,6 +813,7 @@ bool parser::Loop()
                 tabs--;
                 expect(TokenType::OPEN_PARENTHESIS);
                 checkEL();
+                f = icLines.size() + 1;
                 if (!Expression(s))
                 {
                     syntax_error();
@@ -681,7 +828,20 @@ bool parser::Loop()
                         tabs++;
                         printTabs(_lexer.peek(1).lexeme);
                         tabs--;
-                        icLines[icLines.size() - 1] += ' ' + _lexer.peek(1).lexeme + ' ';
+                        icLines[icLines.size() - 1] += _lexer.peek(1).lexeme;
+                        // if (_lexer.peek(1).lexeme == "LT")
+                        //     icLines[icLines.size() - 1] += " < ";
+                        // else if (_lexer.peek(1).lexeme == "LE")
+                        //     icLines[icLines.size() - 1] += " <= ";
+                        // else if (_lexer.peek(1).lexeme == "GT")
+                        //     icLines[icLines.size() - 1] += " > ";
+                        // else if (_lexer.peek(1).lexeme == "GE")
+                        //     icLines[icLines.size() - 1] += " >= ";
+                        // else if (_lexer.peek(1).lexeme == "EQ")
+                        //     icLines[icLines.size() - 1] += " == ";
+                        // else
+                        //     icLines[icLines.size() - 1] += " <> ";
+
                         expect(TokenType::RO);
                         checkEL();
                         if (!Expression(s))
@@ -692,9 +852,8 @@ bool parser::Loop()
                         else
                         {
                             // fout << s << endl;
-                            icLines[icLines.size() - 1] += s + " goto " + to_string(icLines.size() + 2) + '\n';
-                            icLines.push_back("goto ");
-                            f = icLines.size() - 1;
+                            icLines[icLines.size() - 1] += s + " goto ";
+                            t = icLines.size() - 1;
                             if (_lexer.peek(1).tokenType == TokenType::CLOSE_PARENTHESIS)
                             {
                                 tabs++;
@@ -733,7 +892,7 @@ bool parser::Loop()
                                                 checkEL();
                                                 tabs--;
                                                 icLines.push_back("goto " + to_string(f) + '\n');
-                                                icLines[f] += to_string(icLines.size() + 1) + '\n';
+                                                icLines[t] += to_string(icLines.size() + 1) + '\n';
                                                 return true;
                                             }
                                         }
@@ -749,7 +908,7 @@ bool parser::Loop()
     return false;
 }
 
-bool parser::Ele(vector<int>& v)
+bool parser::Ele(vector<int> &v)
 {
     string s;
     int f = 0;
@@ -777,6 +936,18 @@ bool parser::Ele(vector<int>& v)
                 printTabs(_lexer.peek(1).lexeme);
                 tabs--;
                 icLines[icLines.size() - 1] += _lexer.peek(1).lexeme;
+                // if (_lexer.peek(1).lexeme == "LT")
+                //     icLines[icLines.size() - 1] += "<";
+                // else if (_lexer.peek(1).lexeme == "LE")
+                //     icLines[icLines.size() - 1] += "<=";
+                // else if (_lexer.peek(1).lexeme == "GT")
+                //     icLines[icLines.size() - 1] += ">";
+                // else if (_lexer.peek(1).lexeme == "GE")
+                //     icLines[icLines.size() - 1] += ">=";
+                // else if (_lexer.peek(1).lexeme == "EQ")
+                //     icLines[icLines.size() - 1] += "==";
+                // else
+                //     icLines[icLines.size() - 1] += "<>";
                 expect(TokenType::RO);
                 checkEL();
 
@@ -820,7 +991,7 @@ bool parser::Ele(vector<int>& v)
                                 {
                                     icLines.push_back("goto ");
                                     icLines[f] += to_string(icLines.size() + 1) + "\n";
-                                    v.push_back(icLines.size()- 1);
+                                    v.push_back(icLines.size() - 1);
                                     if (!Els(v))
                                     {
                                         syntax_error();
@@ -858,7 +1029,7 @@ bool parser::El()
     return true;
 }
 
-bool parser::Els(vector<int>& v)
+bool parser::Els(vector<int> &v)
 {
     tabs++;
     printTabs("Els");
@@ -908,11 +1079,12 @@ bool parser::Els(vector<int>& v)
         }
     }
 
-    syntax_error();
-    return false;
+    return true;
+    // syntax_error();
+    // return false;
 }
 
-bool parser::Else(vector<int>& v)
+bool parser::Else(vector<int> &v)
 {
     string s;
     tabs++;
@@ -954,6 +1126,19 @@ bool parser::Else(vector<int>& v)
                         printTabs(_lexer.peek(1).lexeme);
                         tabs--;
                         icLines[icLines.size() - 1] += _lexer.peek(1).lexeme;
+                        // if (_lexer.peek(1).lexeme == "LT")
+                        //     icLines[icLines.size() - 1] += "<";
+                        // else if (_lexer.peek(1).lexeme == "LE")
+                        //     icLines[icLines.size() - 1] += "<=";
+                        // else if (_lexer.peek(1).lexeme == "GT")
+                        //     icLines[icLines.size() - 1] += ">";
+                        // else if (_lexer.peek(1).lexeme == "GE")
+                        //     icLines[icLines.size() - 1] += ">=";
+                        // else if (_lexer.peek(1).lexeme == "EQ")
+                        //     icLines[icLines.size() - 1] += "==";
+                        // else
+                        //     icLines[icLines.size() - 1] += "<>";
+
                         expect(TokenType::RO);
                         checkEL();
                         if (!Expression(s))
@@ -1018,15 +1203,23 @@ bool parser::Else(vector<int>& v)
                 }
             }
         }
+
+        _lexer.setCurrentPointer(_lexer.getCurrentPointer() - 1);
+        if (!Els(v))
+        {
+            syntax_error();
+            return false;
+        }
     }
 
-    syntax_error();
-    return false;
+
+    tabs--;
+    return true;
 }
 
 bool parser::If()
 {
-    vector <int> forIf;
+    vector<int> forIf;
     int f;
     string s;
     ++tabs;
@@ -1060,7 +1253,19 @@ bool parser::If()
                     tabs++;
                     printTabs(_lexer.peek(1).lexeme);
                     tabs--;
-                    icLines[icLines.size() - 1] += _lexer.peek(1).lexeme;
+                     icLines[icLines.size() - 1] += _lexer.peek(1).lexeme;
+                    // if (_lexer.peek(1).lexeme == "LT")
+                    //     icLines[icLines.size() - 1] += "<";
+                    // else if (_lexer.peek(1).lexeme == "LE")
+                    //     icLines[icLines.size() - 1] += "<=";
+                    // else if (_lexer.peek(1).lexeme == "GT")
+                    //     icLines[icLines.size() - 1] += ">";
+                    // else if (_lexer.peek(1).lexeme == "GE")
+                    //     icLines[icLines.size() - 1] += ">=";
+                    // else if (_lexer.peek(1).lexeme == "EQ")
+                    //     icLines[icLines.size() - 1] += "==";
+                    // else
+                    //     icLines[icLines.size() - 1] += "<>";
                     expect(TokenType::RO);
                     checkEL();
 
@@ -1113,8 +1318,8 @@ bool parser::If()
                                         }
                                         else
                                         {
-                                            icLines.push_back("goto "); 
-                                            icLines[f] += to_string(icLines.size() + 1) + "\n"; 
+                                            icLines.push_back("goto ");
+                                            icLines[f] += to_string(icLines.size() + 1) + "\n";
                                             forIf.push_back(icLines.size() - 1);
                                             if (!Else(forIf))
                                             {
@@ -1178,6 +1383,8 @@ bool parser::Declaration()
             id = _lexer.peek(1).lexeme;
             symbol s;
             s.var = _lexer.peek(1).lexeme;
+            s.address = address;
+            address += 4;
             tbl.push_back(s);
             tabs++;
             printTabs(_lexer.peek(1).lexeme);
@@ -1198,7 +1405,7 @@ bool parser::Declaration()
     return false;
 }
 
-bool parser::DecType(string& id)
+bool parser::DecType(string &id)
 {
     tabs++;
     printTabs("DecType");
@@ -1213,7 +1420,7 @@ bool parser::DecType(string& id)
         if (_lexer.peek(1).tokenType == TokenType::adad)
         {
             tbl[tblIndex].d = Datatype::adad;
-            tblIndex++;
+            // tblIndex++;
             tabs++;
             printTabs("adad");
             tabs--;
@@ -1234,6 +1441,7 @@ bool parser::DecType(string& id)
     else if (_lexer.peek(1).tokenType == TokenType::ASSIGNMENT)
     {
         tbl.pop_back();
+        address -= 4;
         tabs++;
         printTabs(":=");
         tabs--;
@@ -1253,7 +1461,7 @@ bool parser::DecType(string& id)
     return false;
 }
 
-bool parser::AssignToExp(string& id)
+bool parser::AssignToExp(string &id)
 {
     tabs++;
     printTabs("AssignToExp");
@@ -1276,6 +1484,8 @@ bool parser::AssignToExp(string& id)
     }
 
     tabs--;
+    tbl[tblIndex].init = 0;
+    tblIndex++;
     return true;
 }
 
@@ -1293,16 +1503,36 @@ bool parser::CorE(string id)
             return false;
         }
 
+        if (id == tbl[tbl.size() - 1].var)
+        {
+            if (s[0] < 48 || s[0] > 59)
+            {
+                tbl[tblIndex].init = 0;
+            }
+            else
+            {
+                tbl[tblIndex].init = stoi(s);
+            }
+            tblIndex++;
+        }
+
         icLines.push_back(id + " = " + s + '\n');
         tabs--;
         return true;
     }
+
+    if (tbl[tbl.size() - 1].var == id)
+    {
+        tbl[tblIndex].init = 0;
+        tblIndex++;
+    }
+
     icLines.push_back(id + " = " + temp + '\n');
     tabs--;
     return true;
 }
 
-bool parser::Call(string& s)
+bool parser::Call(string &s)
 {
     tabs++;
     printTabs("Call");
@@ -1311,6 +1541,8 @@ bool parser::Call(string& s)
     int v = 0;
     if (_lexer.peek(1).tokenType == TokenType::chalao)
     {
+        tbl[tblIndex].init = 0;
+        tblIndex++;
         tabs++;
         printTabs("chalao");
         tabs--;
@@ -1363,7 +1595,7 @@ bool parser::Call(string& s)
     return false;
 }
 
-bool parser::Pass(int& v)
+bool parser::Pass(int &v)
 {
     tabs++;
     printTabs("Pass");
@@ -1386,11 +1618,11 @@ bool parser::Pass(int& v)
         //     expect(TokenType::ID);
         //     checkEL();
 
-            if (!L(v))
-            {
-                syntax_error();
-                return false;
-            }
+        if (!L(v))
+        {
+            syntax_error();
+            return false;
+        }
 
         //     tabs--;
         //     return true;
@@ -1401,7 +1633,7 @@ bool parser::Pass(int& v)
     return true;
 }
 
-bool parser::L(int& v)
+bool parser::L(int &v)
 {
     tabs++;
     printTabs("L");
@@ -1483,6 +1715,7 @@ bool parser::Statement()
 {
     tabs++;
     printTabs("Statement");
+    string temp;
     checkEL();
     if (Declaration())
     {
@@ -1561,6 +1794,27 @@ bool parser::Statement()
         tabs--;
         return true;
     }
+
+    else if (Call(temp))
+    {
+        if (_lexer.peek(1).tokenType == TokenType::SEMICOLON)
+        {
+            tabs++;
+            printTabs(";");
+            tabs--;
+            expect(TokenType::SEMICOLON);
+            checkEL();
+
+            if (!Comment())
+            {
+                syntax_error();
+                return false;
+            }
+            tabs--;
+            return true;
+        }
+    }
+
     else if (Return())
     {
         if (_lexer.peek(1).tokenType == TokenType::SEMICOLON)
@@ -1744,6 +1998,7 @@ bool parser::S()
             checkEL();
             if (_lexer.peek(1).tokenType == TokenType::khatam)
             {
+                address = 0;
                 tabs++;
                 printTabs("khatam");
                 tabs--;
@@ -1778,6 +2033,13 @@ bool parser::Markazi()
     checkEL();
     if (_lexer.peek(1).tokenType == TokenType::kaam)
     {
+        symbol s;
+        s.address = lineNum;
+        s.t = type::func;
+        s.var = "markazi";
+        s.init = 0;
+        tbl.push_back(s);
+
         tabs++;
         printTabs("kaam");
         tabs--;
@@ -1850,6 +2112,7 @@ bool parser::Markazi()
                                         tabs++;
                                         printTabs("khatam");
                                         tabs--;
+                                        address = 0;
                                         expect(TokenType::khatam);
                                         checkEL();
                                         if (!CommentBody())
@@ -1880,10 +2143,15 @@ bool parser::Params()
     checkEL();
     if (_lexer.peek(1).tokenType == TokenType::ID)
     {
+
         symbol s;
         s.var = _lexer.peek(1).lexeme;
+        s.address = address;
+        s.init = 0;
         tbl.push_back(s);
+
         tabs++;
+        address += 4;
         printTabs(_lexer.peek(1).lexeme);
         tabs--;
         expect(TokenType::ID);
@@ -1942,7 +2210,11 @@ bool parser::P()
         {
             symbol s;
             s.var = _lexer.peek(1).lexeme;
+            s.address = address;
+            address += 4;
+            s.init = 0;
             tbl.push_back(s);
+
             tabs++;
             printTabs(_lexer.peek(1).lexeme);
             tabs--;
@@ -1998,7 +2270,11 @@ bool parser::Function()
     {
         symbol s;
         s.var = _lexer.peek(1).lexeme;
+        s.t = type::func;
+        s.address = lineNum;
+        s.init = 0;
         tbl.push_back(s);
+
         tabs++;
         printTabs(_lexer.peek(1).lexeme);
         tabs--;
@@ -2081,6 +2357,7 @@ bool parser::Function()
 
 parser::parser(const char filename[])
 {
+    address = 0;
     tabs = 0;
     tblIndex = 0;
     varNum = 1;
@@ -2100,27 +2377,46 @@ parser::parser(const char filename[])
             fout << icLines[i];
         }
 
+        fout.close();
+        fout.open("symbol_table.txt");
+
         if (tbl.size() > 0)
         {
-            cout << endl
+            fout << endl
+                 << "---------------------------------------------------------------------" << endl;
+            fout << "DATATYPE       "
+                 << "VARIABLE       "
+                 << "ADDRESS        "
+                 << "INITIAL VALUE      "
+                 << "TYPE" << endl;
+
+            fout << "---------------------------------------------------------------------" << endl
                  << endl;
-            cout << "TYPE   "
-                 << "VARIABLE" << endl;
         }
 
         for (int i = 0; i < tbl.size(); i++)
         {
             if (tbl[i].d == Datatype::khali)
             {
-                cout << "khali  ";
+                fout << "khali ";
             }
 
             else
             {
-                cout << "adad   ";
+                fout << "adad ";
             }
 
-            cout << tbl[i].var << endl;
+            fout << tbl[i].var << " " << tbl[i].address << " " << tbl[i].init << " ";
+
+            if (tbl[i].t == type::func)
+            {
+                fout << "func" << endl;
+            }
+
+            else
+            {
+                fout << "var" << endl;
+            }
         }
     }
 

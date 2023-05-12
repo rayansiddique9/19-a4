@@ -1,15 +1,2 @@
 x = 0
-y = 0
-n = 0
-if n EQ 3 goto 6
-goto 9
-ret 0
-goto 19
-if n LT 3 goto 11
-goto 14
-ret 0
-goto 19
-if n GT 3 goto 16
-goto 19
-ret 0
-goto 19
+out x

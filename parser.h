@@ -31,16 +31,23 @@ class parser
         adad = 1
     };
 
+    enum type
+    {
+        func = 0,
+        var = 1
+    };
+
     struct symbol
     {
         Datatype d;
         string var;
-        int initVal;
+        type t;
         int address;
-        string type;
+        int init;
     };
 
     vector<symbol> tbl;
+    int address;
 
 public:
     string newTemp();
